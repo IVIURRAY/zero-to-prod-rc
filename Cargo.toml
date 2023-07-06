@@ -10,7 +10,7 @@ path = "src/lib.rs"
 
 [[bin]]
 path = "src/main.rs"
-name = "zero2pord"
+name = "zero2prod"
 
 [dependencies]
 actix-web = "4"
@@ -39,7 +39,8 @@ features = [
     "postgres",
     "uuid",
     "chrono",
-    "migrate"
+    "migrate",
+    "offline"
 ]
 
 # On Windows
