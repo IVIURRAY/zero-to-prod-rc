@@ -1,4 +1,3 @@
-use sqlx::PgPool;
 use std::net::TcpListener;
 use secrecy::ExposeSecret;
 use sqlx::postgres::PgPoolOptions;
