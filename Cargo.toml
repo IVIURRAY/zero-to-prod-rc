@@ -32,7 +32,6 @@ uuid = { version = "1", features = ["v4"] }
 chrono = { version = "0.4.22", default-features = false, features = ["clock"] }
 
 [dev-dependencies]
-reqwest = "0.11"
 fake = "~2.3"
 
 [dependencies.sqlx]
@@ -47,6 +46,11 @@ features = [
     "migrate",
     "offline"
 ]
+
+[dependencies.reqwest]
+version = "0.11"
+default-features = false
+features = ["json", "rustls-tls"]
 
 # On Windows
 # ```
