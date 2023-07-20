@@ -32,3 +32,9 @@ SKIP_DOCKER=true ./scripts/init_db.sh
 ```shell
 DATABASE_URL=YOUR-DIGITAL-OCEAN-DB-CONNECTION-STRING sqlx migrate run
 ```
+
+# Digital Ocean
+
+Making any changes to `spec.yaml` need to be applied to Digital Ocean.
+
+> Remember to apply the changes to DigitalOcean every time we touch spec.yaml: grab your app identifier via doctl apps list --format ID and then run doctl apps update $APP_ID --spec spec.yaml.
