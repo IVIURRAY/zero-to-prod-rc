@@ -14,11 +14,24 @@ pub struct EmailClient {
 #[derive(serde::Serialize)]
 #[serde(rename_all = "PascalCase")]
 struct SendEmailRequest<'a> {
-    from: &'a str,
-    to: &'a str,
+    messages: Vec<Message<'a>>
+}
+
+#[derive(serde::Serialize)]
+#[serde(rename_all = "PascalCase")]
+struct Message<'a> {
+    from: &'a Address<'a>,
+    to: &'a Vec<Address<'a>>,
     subject: &'a str,
-    html_body: &'a str,
-    text_body: &'a str,
+    text_part: &'a str,
+    html_part: &'a str
+}
+
+#[derive(serde::Serialize)]
+#[serde(rename_all = "PascalCase")]
+struct Address<'a> {
+    email: &'a str,
+    name: &'a str
 }
 
 impl EmailClient {
@@ -47,12 +60,32 @@ impl EmailClient {
     ) -> Result<(), reqwest::Error> {
         let url = format!("{}/send", self.base_url);
 
-        let request_body = SendEmailRequest {
-            from: self.sender.as_ref(),
-            to: recipient.as_ref(),
+        let from_address = Address {
+            email: "mini_muz_11@hotmail.co.uk",
+            name: "Me"
+        };
+        let to_address = Address {
+            email: "mini_muz_11@hotmail.co.uk",
+            name: "Me"
+        };
+        let recipient_address = Address {
+            email: recipient.as_ref(),
+            name: "Me"
+        };
+        let mut to_addresses = vec![];
+        to_addresses.push(to_address);
+        to_addresses.push(recipient_address);
+        let message = Message {
+            from: &from_address,
+            to: &to_addresses,
             subject,
-            html_body: html_content,
-            text_body: text_content,
+            text_part: text_content,
+            html_part: html_content
+        };
+        let mut messages = vec![];
+        messages.push(message);
+        let request_body = SendEmailRequest {
+            messages
         };
 
         let auth_key = format!(
@@ -62,26 +95,6 @@ impl EmailClient {
         self.http_client
             .post(&url)
             .header(AUTHORIZATION, auth_key)
-            // TODO - the body is wrong. It should be in format.
-            // {
-            //     "Messages":[
-            //     {
-            //         "From": {
-            //         "Email": "$SENDER_EMAIL",
-            //         "Name": "Me"
-            //     },
-            //         "To": [
-            //         {
-            //             "Email": "$RECIPIENT_EMAIL",
-            //             "Name": "You"
-            //         }
-            //         ],
-            //         "Subject": "My first Mailjet Email!",
-            //         "TextPart": "Greetings from Mailjet!",
-            //         "HTMLPart": "<h3>Dear passenger 1, welcome to <a href=\"https://www.mailjet.com/\">Mailjet</a>!</h3><br />May the delivery force be with you!"
-            //     }
-            //     ]
-            // }
             .json(&request_body)
             .send()
             .await?

@@ -10,7 +10,7 @@ application:
   host: 127.0.0.1
   base_url: http://127.0.0.1
 email_client:
-  base_url: "localhost"
+  base_url: https://api.mailjet.com/v3.1
   sender_email: "test@gmail.com"
   authorization_token: "my-auth-token"
   timeout_milliseconds: 1000
