@@ -61,7 +61,7 @@ impl EmailClient {
         let url = format!("{}/send", self.base_url);
 
         let from_address = Address {
-            email: "mini_muz_11@hotmail.co.uk",
+            email: self.sender.as_ref(),
             name: "Me"
         };
         let to_address = Address {
