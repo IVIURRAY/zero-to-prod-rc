@@ -2,6 +2,7 @@ use crate::domain::SubscriberEmail;
 use reqwest::header::AUTHORIZATION;
 use reqwest::Client;
 use secrecy::{ExposeSecret, Secret};
+use sqlx::types::JsonValue;
 
 #[derive(Clone)]
 pub struct EmailClient {
@@ -27,11 +28,17 @@ struct Message<'a> {
     html_part: &'a str
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, PartialEq, Debug)]
 #[serde(rename_all = "PascalCase")]
-struct Address<'a> {
-    email: &'a str,
-    name: &'a str
+pub struct Address<'a> {
+    pub email: &'a str,
+    pub name: &'a str
+}
+
+impl PartialEq<JsonValue> for Address<'_> {
+    fn eq(&self, other: &JsonValue) -> bool {
+        (self.email == other["Email"]) & (self.name == other["Name"])
+    }
 }
 
 impl EmailClient {
@@ -70,7 +77,7 @@ impl EmailClient {
         };
         let recipient_address = Address {
             email: recipient.as_ref(),
-            name: "Me"
+            name: "You"
         };
         let mut to_addresses = vec![];
         to_addresses.push(to_address);
