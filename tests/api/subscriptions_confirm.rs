@@ -120,7 +120,6 @@ async fn the_request_structure_for_mailjet_is_valid() {
 
     assert_eq!("Welcome!", &message["Subject"]);
 
-    // TODO - the subscription token changes each call :(
-    // assert_eq!("Welcome to our newsletter!<br />Click <a href=\"http://127.0.0.1/subscriptions/confirm?subscription_token=mjJWjE1QbzPa7TnJqOI91gF7Y\">here</a> to confirm your subscription.", &message["HtmlPart"]);
-    // assert_eq!("Welcome to our newsletter!\nVisit http://127.0.0.1/subscriptions/confirm?subscription_token=XkqkU65r9GJdxy8OQioxgl4Ch to confirm your subscription.", &message["TextPart"]);
+    assert!(&message["HtmlPart"].to_string().contains("Welcome to our newsletter!"));
+    assert!(&message["TextPart"].to_string().contains("Welcome to our newsletter!"));
 }
