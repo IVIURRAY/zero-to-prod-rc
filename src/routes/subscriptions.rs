@@ -1,12 +1,12 @@
 use crate::domain::{NewSubscriber, SubscriberEmail, SubscriberName};
 use crate::email_client::EmailClient;
+use crate::startup::ApplicationBaseUrl;
 use actix_web::{web, HttpResponse};
 use chrono::Utc;
+use rand::distributions::Alphanumeric;
+use rand::{thread_rng, Rng};
 use sqlx::{PgPool, Postgres, Transaction};
 use uuid::Uuid;
-use crate::startup::ApplicationBaseUrl;
-use rand::{thread_rng, Rng};
-use rand::distributions::Alphanumeric;
 
 #[derive(serde::Deserialize)]
 pub struct FormData {
@@ -52,7 +52,7 @@ pub async fn subscribe(
     };
     let mut transaction = match pool.begin().await {
         Ok(transaction) => transaction,
-        Err(_) => return HttpResponse::InternalServerError().finish()
+        Err(_) => return HttpResponse::InternalServerError().finish(),
     };
     let subscriber_id = match insert_subscriber(&mut transaction, &new_subscriber).await {
         Ok(subscriber_id) => subscriber_id,
@@ -74,10 +74,10 @@ pub async fn subscribe(
         &email_client,
         new_subscriber,
         &base_url.0,
-        &subscription_token
+        &subscription_token,
     )
-        .await
-        .is_err()
+    .await
+    .is_err()
     {
         return HttpResponse::InternalServerError().finish();
     }
@@ -95,7 +95,10 @@ pub async fn send_confirmation_email(
     base_url: &str,
     subscription_token: &str,
 ) -> Result<(), reqwest::Error> {
-    let confirmation_link = format!("{}/subscriptions/confirm?subscription_token={}", base_url, subscription_token);
+    let confirmation_link = format!(
+        "{}/subscriptions/confirm?subscription_token={}",
+        base_url, subscription_token
+    );
     let plain_body = format!(
         "Welcome to our newsletter!\nVisit {} to confirm your subscription.",
         confirmation_link
@@ -107,7 +110,12 @@ pub async fn send_confirmation_email(
     );
 
     email_client
-        .send_email(new_subscriber.email, "Welcome!", &html_body, &plain_body)
+        .send_email(
+            new_subscriber.email,
+            "Welcome zero2prod!",
+            &html_body,
+            &plain_body,
+        )
         .await
 }
 
@@ -141,7 +149,7 @@ pub async fn insert_subscriber(
 }
 
 #[tracing::instrument(
-    name="Store subscription token in the database",
+    name = "Store subscription token in the database",
     skip(subscription_token, transaction)
 )]
 pub async fn store_token(
@@ -155,12 +163,12 @@ pub async fn store_token(
         subscription_token,
         subscriber_id
     )
-        .execute(transaction)
-        .await
-        .map_err(|e| {
-            tracing::error!("Failed to execute query: {:?}", e);
-            e
-        })?;
+    .execute(transaction)
+    .await
+    .map_err(|e| {
+        tracing::error!("Failed to execute query: {:?}", e);
+        e
+    })?;
 
     Ok(())
 }
