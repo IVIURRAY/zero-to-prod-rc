@@ -1,4 +1,5 @@
 use crate::domain::SubscriberEmail;
+use base64::{engine::general_purpose, Engine as _};
 use reqwest::header::AUTHORIZATION;
 use reqwest::Client;
 use secrecy::{ExposeSecret, Secret};
@@ -99,6 +100,8 @@ impl EmailClient {
             "2953459fde362ac320d657465becc368:{}",
             self.authorization_token.expose_secret()
         );
+        let auth_key = general_purpose::STANDARD.encode(auth_key);
+        let auth_key = format!("Basic {}", auth_key);
         self.http_client
             .post(&url)
             .header(AUTHORIZATION, auth_key)
