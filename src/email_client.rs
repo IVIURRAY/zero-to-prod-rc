@@ -13,27 +13,27 @@ pub struct EmailClient {
     authorization_token: Secret<String>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 struct SendEmailRequest<'a> {
-    messages: Vec<Message<'a>>
+    messages: Vec<Message<'a>>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 struct Message<'a> {
     from: &'a Address<'a>,
     to: &'a Vec<Address<'a>>,
     subject: &'a str,
     text_part: &'a str,
-    html_part: &'a str
+    html_part: &'a str,
 }
 
 #[derive(serde::Serialize, PartialEq, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct Address<'a> {
     pub email: &'a str,
-    pub name: &'a str
+    pub name: &'a str,
 }
 
 impl PartialEq<JsonValue> for Address<'_> {
@@ -70,15 +70,15 @@ impl EmailClient {
 
         let from_address = Address {
             email: self.sender.as_ref(),
-            name: "Me"
+            name: "Me",
         };
         let to_address = Address {
             email: "mini_muz_11@hotmail.co.uk",
-            name: "Me"
+            name: "Me",
         };
         let recipient_address = Address {
             email: recipient.as_ref(),
-            name: "You"
+            name: "You",
         };
         let mut to_addresses = vec![];
         to_addresses.push(to_address);
@@ -88,13 +88,11 @@ impl EmailClient {
             to: &to_addresses,
             subject,
             text_part: text_content,
-            html_part: html_content
+            html_part: html_content,
         };
         let mut messages = vec![];
         messages.push(message);
-        let request_body = SendEmailRequest {
-            messages
-        };
+        let request_body = SendEmailRequest { messages };
 
         let auth_key = format!(
             "2953459fde362ac320d657465becc368:{}",

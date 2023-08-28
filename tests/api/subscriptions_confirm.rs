@@ -1,8 +1,7 @@
+use crate::helpers::spawn_app;
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, ResponseTemplate};
-use crate::helpers::spawn_app;
-use zero2prod::email_client::{Address};
-
+use zero2prod::email_client::Address;
 
 #[tokio::test]
 async fn confirmations_without_token_are_rejected_with_a_400() {
@@ -31,16 +30,12 @@ async fn the_link_returned_by_subscribe_returns_a_200_if_called() {
         .await;
 
     app.post_subscriptions(body.into()).await;
-    let email_request = &app.email_server
-        .received_requests()
-        .await.unwrap()[0];
+    let email_request = &app.email_server.received_requests().await.unwrap()[0];
 
     let confirmation_links = app.get_confirmation_links(&email_request);
 
     // Act
-    let response = reqwest::get(confirmation_links.html)
-        .await
-        .unwrap();
+    let response = reqwest::get(confirmation_links.html).await.unwrap();
 
     // Assert
     assert_eq!(response.status().as_u16(), 200);
@@ -80,7 +75,6 @@ async fn clicking_on_the_confirmation_link_confirms_a_subscriber() {
     assert_eq!(saved.status, "confirmed");
 }
 
-
 #[tokio::test]
 async fn the_request_structure_for_mailjet_is_valid() {
     // Arrange
@@ -94,32 +88,41 @@ async fn the_request_structure_for_mailjet_is_valid() {
         .await;
 
     app.post_subscriptions(body.into()).await;
-    let email_request = &app.email_server
-        .received_requests()
-        .await.unwrap()[0];
+    let email_request = &app.email_server.received_requests().await.unwrap()[0];
 
     // Act
-    let body: serde_json::Value = serde_json::from_slice(
-        &email_request.body
-    ).unwrap();
+    let body: serde_json::Value = serde_json::from_slice(&email_request.body).unwrap();
 
     // Assert
     let message = &body["Messages"][0];
 
-    let expected_address = Address { email: "mini_muz_11@hotmail.co.uk", name: "Me"};
+    let expected_address = Address {
+        email: "mini_muz_11@hotmail.co.uk",
+        name: "Me",
+    };
     assert_eq!(&expected_address, &message["From"]);
 
     let mut expected_to_address = vec![];
-    let expected_from_address_1 = Address { email: "mini_muz_11@hotmail.co.uk", name: "Me"};
-    let expected_from_address_2 = Address { email: "ursula_le_guin@gmail.com", name: "You"};
+    let expected_from_address_1 = Address {
+        email: "mini_muz_11@hotmail.co.uk",
+        name: "Me",
+    };
+    let expected_from_address_2 = Address {
+        email: "ursula_le_guin@gmail.com",
+        name: "You",
+    };
     expected_to_address.push(expected_from_address_1);
     expected_to_address.push(expected_from_address_2);
     let to_address = &message["To"];
     assert_eq!(&expected_to_address[0], to_address.get(0).unwrap());
     assert_eq!(&expected_to_address[1], to_address.get(1).unwrap());
 
-    assert_eq!("Welcome!", &message["Subject"]);
+    assert_eq!("Welcome zero2prod!", &message["Subject"]);
 
-    assert!(&message["HtmlPart"].to_string().contains("Welcome to our newsletter!"));
-    assert!(&message["TextPart"].to_string().contains("Welcome to our newsletter!"));
+    assert!(&message["HtmlPart"]
+        .to_string()
+        .contains("Welcome to our newsletter!"));
+    assert!(&message["TextPart"]
+        .to_string()
+        .contains("Welcome to our newsletter!"));
 }
