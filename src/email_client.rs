@@ -80,9 +80,7 @@ impl EmailClient {
             email: recipient.as_ref(),
             name: "You",
         };
-        let mut to_addresses = vec![];
-        to_addresses.push(to_address);
-        to_addresses.push(recipient_address);
+        let to_addresses = vec![to_address, recipient_address];
         let message = Message {
             from: &from_address,
             to: &to_addresses,
@@ -90,8 +88,7 @@ impl EmailClient {
             text_part: text_content,
             html_part: html_content,
         };
-        let mut messages = vec![];
-        messages.push(message);
+        let messages = vec![message];
         let request_body = SendEmailRequest { messages };
 
         let auth_key = format!(
