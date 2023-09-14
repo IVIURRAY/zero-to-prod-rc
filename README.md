@@ -38,3 +38,11 @@ DATABASE_URL=YOUR-DIGITAL-OCEAN-DB-CONNECTION-STRING sqlx migrate run
 Making any changes to `spec.yaml` need to be applied to Digital Ocean.
 
 > Remember to apply the changes to DigitalOcean every time we touch spec.yaml: grab your app identifier via doctl apps list --format ID and then run doctl apps update $APP_ID --spec spec.yaml.
+
+# Address already in use
+Sometime getting this issue if the processes failed and didn't teardown the process.
+
+```shell
+lsof -i :8000
+kill <PID_FROM_ABOVE>
+```
