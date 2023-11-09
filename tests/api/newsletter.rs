@@ -7,7 +7,8 @@ async fn newsletters_are_not_delivered_to_unconfirmed_subscribers() {
     let app = spawn_app().await;
     create_unconfirmed_subscriber(&app).await;
 
-    Mock::given(any()).respond_with(ResponseTemplate::new(200))
+    Mock::given(any())
+        .respond_with(ResponseTemplate::new(200))
         .expect(0)
         .mount(&app.email_server)
         .await;
